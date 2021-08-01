@@ -10,31 +10,18 @@
 // Output: 4
 
 function hungryPeople(arr) {
-  /*
-    1. Calculate initial difference between pairs as an array
-    2. Function to calculate initial total difference
-    3. Set aside the first value in the array as the number of sandwiches we have
-    10?. return totalDifference()
-  */
-  // Assuming our example was hungryPeople([4,5,2,3,1,0])...
-  // Just remove the first value, modifying the array.
-  
   let sandwiches = arr.shift()
-  // sandwiches now equals 4
-  // arr = [5,2,3,1,0]
-  let initialDifferences = differenceBetweenPairs(arr);
-  let initialTotalDifference = totalDifference(initialDifferences);
-  console.log(initialDifferences, initialTotalDifference)
-  // It can't be this simple... it looks like if I just hit the highest differences
-  // first, we'll get the right number. No way.
-  let fedDifferences = feedPeople(sandwiches, [...initialDifferences]);
-  console.log('after feed', fedDifferences)
-  let finalTotalDifference = totalDifference(fedDifferences);
-  return finalTotalDifference
+
+  
+  let fedArray = feedPeople(sandwiches, [...arr]);
+  let fedDifferences = differenceBetweenPairs(fedArray);
+
+  return totalDifference(fedDifferences);
 }
 
-hungryPeople([5,2,3,4,5])
+//hungryPeople([5,2,3,4,5])
 
+// These two functions calculate the "total difference"
 /* 
   Return an array of the absolute difference between each pair
   Example: differenceBetweenPairs([2,2,2,1,0]) 
@@ -59,34 +46,39 @@ function totalDifference(arr) {
   return arr.reduce((a,b) => {return a + b})
 }
 
-// console.log(totalDifference(differenceBetweenPairs([2,2,2,1,0])))
-
-/*
-  This can't be this easy.
-*/
-
 function feedPeople(sandwiches, arr) {
-    // if we don't have sandwiches, or all of the values are the same...
-    if (sandwiches === 0 || arr.every(e => e === arr[0])) {
-      return arr;
-    }
-    // sort the array so that the highest differences are first.
-    arr.sort((a,b) => b - a)
-    console.log('')
-    // feed the people!
-    for (let i = 0; i < arr.length; i++) {
-      // do i have enough sandwiches to feed this person?
-      if (arr[i] <= sandwiches) {
-        // yes, i do, so reduce sandwiches.
-        sandwiches -= arr[i];
-        // and i can safely assume i reduced the persons hunger to zero
-        arr[i] = 0;
-      } else if (arr[i] > sandwiches) {
-        // similarly, if i use all my sandwiches
-        arr[i] = arr[i] -= sandwiches;
-        // i can reduce sandwiches to zero
-        sandwiches = 0
+   // Sort the array with most hungry first
+   arr.sort((a,b) => b - a);
+   //console.log('sorted', arr)
+   // iterate. if arr[i] > arr[i+1], and we have sandwiches, feed arr[i] to match 
+   // him to i+1
+  let i = 0;
+  while (i < arr.length && sandwiches >= 0) {
+    //console.log("Begin a loop", i, arr[i], arr[i+1])
+    if (arr[i] > arr[i+1]) {
+      let diff = arr[i] - arr[i+1];
+      //console.log('diff', diff)
+      // reduce this persons hunger by the difference or the number of sandwiches, whichever is available
+      if (diff > sandwiches) {
+        arr[i] -= sandwiches;
+      } else {
+        arr[i] -= diff;
       }
+      // going below zero is fine
+      sandwiches -= diff;
+      // reset the loop each time we feed someone
+      //console.log(`step ${i}`, arr)
+      i = 0;
+      //console.log('i, sandwiches', i, sandwiches)
+    } else {
+      i++;
     }
-    return arr;
+    
+  }
+  //console.log('the new values', arr, sandwiches) 
+
+   // if we make it through without feeding anyone / run out of sandwiches, return the new... thing
+   return [...arr];
 }
+
+console.log(`The final total difference is: ${hungryPeople([5, 2, 3, 4, 5])}`);
