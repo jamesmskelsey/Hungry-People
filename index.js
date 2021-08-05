@@ -9,14 +9,65 @@
 // Input: [3, 2, 1, 0, 4, 1, 0]
 // Output: 4
 
+// This now solves for 'final total difference' as the problem required
+// and includes data afterwards for the amounts to feed every body
 function hungryPeople(arr) {
   let sandwiches = arr.shift()
 
-  
-  let fedArray = feedPeople(sandwiches, [...arr]);
-  let fedDifferences = differenceBetweenPairs(fedArray);
+  // Original Strategy
+  //let fedArray = feedPeople(sandwiches, [...arr]);
+  //let fedDifferences = differenceBetweenPairs(fedArray);
+  //return totalDifference(fedDifferences);
 
-  return totalDifference(fedDifferences);
+  // Feed people while keeping track of who we fed
+
+  let fedArray = feedPeopleTracked(sandwiches, arr);
+  let fedDifferences = differenceBetweenPairs(fedArray.map(el => el.hunger))
+  let finalTotalDifference = totalDifference(fedDifferences)
+  let amountsFed = fedArray.map(el => el.amountFed)
+  return [finalTotalDifference, ...amountsFed]
+}
+
+function feedPeopleTracked(sandwiches, arr) {
+  let peopleArr = arr.map((hunger, i) => {
+    return {
+      originalPos: i,
+      hunger: hunger,
+      amountFed: 0,
+    }
+  })
+  console.log(peopleArr)
+  peopleArr.sort((a,b) => b.hunger - a.hunger);
+  console.log('sorted', peopleArr)
+   // iterate. if arr[i] > arr[i+1], and we have sandwiches, feed arr[i] to match 
+   // him to i+1
+  let i = 0;
+  while (i < peopleArr.length && sandwiches >= 0) {
+    //console.log("Begin a loop", i, arr[i], arr[i+1])
+    if (peopleArr[i].hunger > peopleArr[i+1].hunger) {
+      let diff = peopleArr[i].hunger - peopleArr[i+1].hunger;
+      //console.log('diff', diff)
+      // reduce this persons hunger by the difference or the number of sandwiches, whichever is available
+      if (diff > sandwiches) {
+        peopleArr[i].hunger -= sandwiches;
+        peopleArr[i].amountFed += sandwiches;
+      } else {
+        peopleArr[i].hunger -= diff;
+        peopleArr[i].amountFed += diff;
+      }
+      // going below zero is fine
+      sandwiches -= diff;
+      // reset the loop each time we feed someone
+      //console.log(`step ${i}`, arr)
+      i = 0;
+      //console.log('i, sandwiches', i, sandwiches)
+    } else {
+      i++;
+    }
+  }
+  peopleArr.sort((a,b) => a.originalPos - b.originalPos);
+  console.log(peopleArr)
+  return [...peopleArr];
 }
 
 //hungryPeople([5,2,3,4,5])
@@ -81,4 +132,6 @@ function feedPeople(sandwiches, arr) {
    return [...arr];
 }
 
-console.log(`The final total difference is: ${hungryPeople([5, 2, 3, 4, 5])}`);
+let finalArray = hungryPeople([5, 2, 3, 4, 5])
+console.log(`The final total difference is: ${finalArray.shift()}`);
+console.log(`And each person should be fed: ${finalArray} pieces of food.`)
