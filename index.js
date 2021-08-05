@@ -11,15 +11,10 @@
 
 function hungryPeople(arr) {
   let sandwiches = arr.shift()
-
-  
   let fedArray = feedPeople(sandwiches, [...arr]);
   let fedDifferences = differenceBetweenPairs(fedArray);
-
   return totalDifference(fedDifferences);
 }
-
-//hungryPeople([5,2,3,4,5])
 
 // These two functions calculate the "total difference"
 /* 
@@ -34,8 +29,6 @@ function differenceBetweenPairs(arr) {
   }
   return output;
 }
-
-// console.log(differenceBetweenPairs([2,2,2,1,0]))
 
 /*
   Return the sum of the passed in array
@@ -57,7 +50,6 @@ function feedPeople(sandwiches, arr) {
     //console.log("Begin a loop", i, arr[i], arr[i+1])
     if (arr[i] > arr[i+1]) {
       let diff = arr[i] - arr[i+1];
-      //console.log('diff', diff)
       // reduce this persons hunger by the difference or the number of sandwiches, whichever is available
       if (diff > sandwiches) {
         arr[i] -= sandwiches;
@@ -67,16 +59,12 @@ function feedPeople(sandwiches, arr) {
       // going below zero is fine
       sandwiches -= diff;
       // reset the loop each time we feed someone
-      //console.log(`step ${i}`, arr)
       i = 0;
-      //console.log('i, sandwiches', i, sandwiches)
     } else {
       i++;
     }
     
   }
-  //console.log('the new values', arr, sandwiches) 
-
    // if we make it through without feeding anyone / run out of sandwiches, return the new... thing
    return [...arr];
 }
